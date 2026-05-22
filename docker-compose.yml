@@ -7,9 +7,13 @@ services:
       POSTGRES_DB: azure_rosario
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U rosario -d azure_rosario"]
       interval: 5s
+      timeout: 5s
       retries: 5
 
   app:
@@ -25,3 +29,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+volumes:
+  postgres_data:
