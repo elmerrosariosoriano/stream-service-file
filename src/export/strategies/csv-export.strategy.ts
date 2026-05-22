@@ -20,7 +20,7 @@ export class CsvExportStrategy implements ExportStrategy {
     stream.on('data', () => {
 
       processed++;
-      if (processed % 10000 === 0) {
+      if (processed % 5000 === 0) {
         logMemoryUsage(`CSV STREAM`, processed);
       }
     });

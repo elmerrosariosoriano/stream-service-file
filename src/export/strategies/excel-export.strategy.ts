@@ -25,7 +25,7 @@ export class ExcelExportStrategy implements ExportStrategy {
 
             worksheet.addRow(row).commit();
             processed++;
-            if (processed % 10000 ===0) {
+            if (processed % 5000 ===0) {
               logMemoryUsage(`EXCEL STREAM`, processed);
             }
           },
