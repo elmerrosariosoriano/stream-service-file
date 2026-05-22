@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: rosario
+      POSTGRES_PASSWORD: rosario123456789
+      POSTGRES_DB: azure_rosario
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rosario -d azure_rosario"]
+      interval: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: rosario
+      POSTGRES_PASSWORD: rosario123456789
+      POSTGRES_DB: azure_rosario
+    depends_on:
+      postgres:
+        condition: service_healthy
