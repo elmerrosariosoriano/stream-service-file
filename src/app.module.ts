@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { UserService } from './user/user.service';
 import { AppController } from './app.controller';
-import { DatabaseService } from './database/database.service';
+import { PinotService } from './pinot/pinot.service';
+import { KafkaService } from './kafka/kafka.service';
 import { ExportService } from './export/export.service';
 import { CsvExportStrategy } from './export/strategies/csv-export.strategy';
 import { ExcelExportStrategy } from './export/strategies/excel-export.strategy';
@@ -10,8 +11,9 @@ import { ExcelExportStrategy } from './export/strategies/excel-export.strategy';
   imports: [],
   controllers: [AppController],
   providers: [
-    DatabaseService,
+    KafkaService,
     UserService,
+    PinotService,
     ExportService,
     CsvExportStrategy,
     ExcelExportStrategy,

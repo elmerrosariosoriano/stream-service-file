@@ -1,69 +1,149 @@
 # stream-service-file
 
-Demo de exportación masiva de usuarios desde PostgreSQL en formato CSV y Excel usando streaming en NestJS.
+Demo de generación masiva y exportación de usuarios usando:
 
-## Requisitos
+- NestJS
+- Apache Kafka
+- Apache Pinot
+- Streaming CSV / Excel
 
-- [Docker](https://www.docker.com/products/docker-desktop) instalado y corriendo
+## Arquitectura
 
-## Levantar el proyecto
+```text
+NestJS → Kafka → Pinot Realtime → Export CSV / Excel
+```
+
+---
+
+# Requisitos
+
+- Docker Desktop
+
+---
+
+# Levantar infraestructura
 
 ```bash
-docker compose up --build
+docker compose up --build -d
 ```
 
-Eso descarga PostgreSQL, construye la imagen de la app y levanta ambos contenedores.
+## URLs
 
-La app estará disponible en: `http://localhost:3000`
+| Servicio | URL |
+|---|---|
+| API | http://localhost:3000 |
+| Pinot UI | http://localhost:9000 |
+| Kafka UI | http://localhost:8080 |
 
-## Endpoints
+---
 
-### Health check
+# Crear Topic Kafka
+
+```bash
+docker exec -it kafka bash -c "kafka-topics --create --topic users-topic --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1"
 ```
+
+---
+
+# Crear Schema Pinot
+
+```bash
+curl -X POST http://localhost:9000/schemas -H "Content-Type: application/json" -d @pinot/users-schema.json
+```
+
+---
+
+# Crear Realtime Table Pinot
+
+```bash
+curl -X POST http://localhost:9000/tables -H "Content-Type: application/json" -d @pinot/users-realtime-table.json
+```
+
+---
+
+# Ejecutar aplicación
+
+```bash
+npm install && npm run start:dev
+```
+
+---
+
+# Endpoints
+
+## Health Check
+
+```http
 GET /
 ```
 
-### Crear un usuario
-```
-POST /users
-```
+---
 
-### Generar usuarios masivos
-```
+## Generar usuarios
+
+```http
 POST /users/generate
-Content-Type: application/json
+```
 
+```json
 {
   "totalUsers": 50000,
   "batchSize": 1000
 }
 ```
 
-### Exportar usuarios
-```
+---
+
+## Exportar CSV
+
+```http
 GET /export?type=csv
+```
+
+---
+
+## Exportar Excel
+
+```http
 GET /export?type=excel
 ```
 
-## Flujo de prueba rápida
+---
+
+# Flujo rápido
+
+## Generar usuarios
 
 ```bash
-# 1. Levantar el proyecto
-docker compose up --build
+curl -X POST http://localhost:3000/users/generate -H "Content-Type: application/json" -d "{\"totalUsers\":50000,\"batchSize\":1000}"
+```
 
-# 2. Generar datos de prueba
-curl -X POST http://localhost:3000/users/generate \
-  -H "Content-Type: application/json" \
-  -d '{"totalUsers": 50000, "batchSize": 1000}'
+## Consultar Pinot
 
-# 3. Exportar
-curl -o users.csv  "http://localhost:3000/export?type=csv"
+```sql
+SELECT * FROM users_REALTIME LIMIT 10
+```
+
+## Descargar CSV
+
+```bash
+curl -o users.csv "http://localhost:3000/export?type=csv"
+```
+
+## Descargar Excel
+
+```bash
 curl -o users.xlsx "http://localhost:3000/export?type=excel"
 ```
 
-## Apagar
+---
+
+# Apagar proyecto
 
 ```bash
-docker compose down          # apaga los contenedores
-docker compose down -v       # apaga y borra los datos de PostgreSQL
+docker compose down
+```
+
+```bash
+docker compose down -v
 ```

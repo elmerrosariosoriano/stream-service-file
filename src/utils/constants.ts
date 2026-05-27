@@ -1,3 +1,26 @@
+export const LAST_NAMES: string[] = [
+  'Smith',
+  'Doe',
+  'Garcia',
+  'Lopez',
+  'Perez',
+  'Torres',
+  'Johnson',
+  'Williams',
+  'Brown',
+  'Jones',
+  'Miller',
+  'Davis',
+  'Wilson',
+  'Anderson',
+  'Taylor',
+  'Thomas',
+  'Moore',
+  'Jackson',
+  'Martin',
+  'Lee',
+];
+
 export const FIRST_NAMES: string[] = [
   'Juan',
   'Carlos',

@@ -16,15 +16,6 @@ export class AppController {
     return 'Streaming service running';
   }
 
-  @Post('/users')
-  async createUser() {
-    return this.userService.createUser({
-      first_name: 'John',
-      last_name: 'Doe',
-      email: 'john.doe@example.com',
-    });
-  }
-
   @Post('/users/generate')
   async generateUsers(@Body() body: any) {
 

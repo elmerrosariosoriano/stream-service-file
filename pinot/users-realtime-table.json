@@ -1,0 +1,36 @@
+{
+  "tableName": "users_REALTIME",
+  "tableType": "REALTIME",
+
+  "segmentsConfig": {
+    "timeColumnName": "created_at",
+    "schemaName": "users",
+    "replication": "1"
+  },
+
+  "tenants": {
+    "broker": "DefaultTenant",
+    "server": "DefaultTenant"
+  },
+
+  "tableIndexConfig": {
+    "loadMode": "MMAP"
+  },
+
+  "ingestionConfig": {
+    "streamIngestionConfig": {
+      "streamConfigMaps": [
+      {
+        "streamType": "kafka",
+        "stream.kafka.topic.name": "users-topic",
+        "stream.kafka.broker.list": "kafka:9092",
+        "stream.kafka.bootstrap.servers": "kafka:9092",
+        "stream.kafka.consumer.type": "simple",
+        "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
+        "realtime.segment.flush.threshold.rows": "50000"
+      }
+      ]
+    }
+  },
+  "metadata": {}
+}

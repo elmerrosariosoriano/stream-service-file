@@ -1,3 +1,54 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { KafkaService } from '../kafka/kafka.service';
+import { PinotService } from '../pinot/pinot.service';
+import { UserMessage } from './interfaces/user-message.interface';
+import { Readable } from 'stream';
+import { randomUUID } from 'crypto';
+import { getRandomFirstName, getRandomLastName } from '../utils/memory.util';
+
+@Injectable()
+export class UserService {
+
+  private readonly logger =
+    new Logger(UserService.name);
+
+  constructor(
+    private readonly kafkaService: KafkaService,
+    private readonly pinotService: PinotService,
+  ) {}
+
+  async generateUsers( totalUsers = 100000,  batchSize = 5000,) {
+
+    let inserted = 0;
+    for (let offset = 0;  offset < totalUsers;  offset += batchSize) {
+
+      const users: UserMessage[] = [];
+      const currentBatch = Math.min(batchSize,  totalUsers - offset,);
+
+      for (let index = 0;  index < currentBatch;  index++) {
+
+        const id = randomUUID();
+        const first_name = getRandomFirstName();
+        const last_name = getRandomLastName();
+        users.push({ id, first_name,  last_name,  email: `user_${last_name}_${Date.now()}@gmail.com`,  created_at: Date.now(),});
+      }
+
+      await this.kafkaService.publishUsers(users);
+
+      inserted += currentBatch;
+      this.logger.log(`Inserted ${inserted}/${totalUsers}`,);
+    }
+
+    return {success: true,  inserted,};
+  }
+
+  async streamUsers(): Promise<Readable> {
+    return this.pinotService.streamUsers();
+  }
+}
+
+
+/*
 import {  Injectable,  Logger,} from '@nestjs/common';
 
 import { randomBytes } from 'crypto';
@@ -85,3 +136,4 @@ export class UserService {
     return randomBytes(6).toString('hex',);
   }
 }
+*/
